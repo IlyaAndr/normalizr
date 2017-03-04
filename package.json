@@ -1,5 +1,5 @@
 {
-  "name": "normalizr",
+  "name": "normalizr-postprocess",
   "version": "3.2.2",
   "description": "Normalizes and denormalizes JSON according to schema for Redux and Flux applications",
   "bugs": {
