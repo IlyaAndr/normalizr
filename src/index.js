@@ -21,16 +21,23 @@ const visit = (value, parent, key, schema, addEntity) => {
 const addEntities = (entities) => (schema, processedEntity, value, parent, key) => {
   const schemaKey = schema.key;
   const id = schema.getId(value, parent, key);
+  if (!('normalizrCopies' in entities)) {
+    entities.normalizrCopies = {};
+  }
+  if (!(schemaKey in entities.normalizrCopies)) {
+    entities.normalizrCopies[schemaKey] = {};
+  }
   if (!(schemaKey in entities)) {
     entities[schemaKey] = {};
   }
 
-  const existingEntity = entities[schemaKey][id];
+  const existingEntity = entities.normalizrCopies[schemaKey][id];
   if (existingEntity) {
-    entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
+    entities.normalizrCopies[schemaKey][id] = schema.merge(existingEntity, processedEntity);
   } else {
-    entities[schemaKey][id] = processedEntity;
+    entities.normalizrCopies[schemaKey][id] = processedEntity;
   }
+  entities[schemaKey][id] = schema.postProcess(entities.normalizrCopies[schemaKey][id]);
 };
 
 export const schema = {
@@ -50,6 +57,7 @@ export const normalize = (input, schema) => {
   const addEntity = addEntities(entities);
 
   const result = visit(input, input, null, schema, addEntity);
+  delete entities.normalizrCopies;
   return { entities, result };
 };
 
